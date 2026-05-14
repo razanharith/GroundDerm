@@ -10,7 +10,7 @@ GroundDerm is a fully training-free pipeline for dermoscopic melanoma diagnosis 
 
 ## Pipeline
 
-![GroundDerm Framework](imgs/framework.png)
+![GroundDerm Framework](framework.png)
 
 GroundDerm extends the standard concept-bottleneck formulation x → c → y with an interposed spatial verification stage:
 
