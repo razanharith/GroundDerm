@@ -37,29 +37,6 @@ Eight dermoscopic concepts grounded in the 7-Point Checklist and ABCD rule:
 | 7 | Regression Structures | White scar-like / blue-grey peppering | 7-Point |
 | 8 | Irregular Pigmentation | Asymmetric blotch distribution | ABCD |
 
-## Stage Details
-
-**Stage 1 — VLM-Based Concept Extraction**
-BiomedCLIP (ViT-B/16 + PubMedBERT, pretrained on PMC-15M) is used frozen throughout. Input is a 224×224 crop of the lesion bounding box expanded by 15%. Each concept is scored via T=3 syntactically diverse prompt templates, mean-pooled and softmax-normalised against contrastive references. Domain pretraining matters: BiomedCLIP achieves 24.2% mean per-concept F1 vs 14.3% for general-domain CLIP.
-
-**Stage 2 — Text-Conditioned Spatial Grounding**
-GradCAM gradients are computed exactly via automatic differentiation (no parameter updates) through the frozen encoder. Heatmaps are aggregated across the last L=4 transformer layers to capture both low-level texture and high-level semantics, then bilinearly upsampled and min-max normalised to H_k ∈ [0,1]^{H×W}. Operates on the full uncropped image so heatmaps share the mask's coordinate frame.
-
-**Stage 3 — Spatial Reliability Verification (core contribution)**
-The reliability score multiplicatively couples spatial fidelity with semantic confidence:
-
-$$r_k = \underbrace{\frac{\sum_{i,j} H_k(i,j) \cdot M(i,j)}{\sum_{i,j} H_k(i,j) + \epsilon}}_{\text{coverage}(H_k, M)} \times \underbrace{\sigma(s_k)}_{\text{calibrated confidence}}$$
-
-Formal properties: (1) Boundedness — r_k ∈ [0,1]; (2) Monotonicity — r_k → 0 when heatmap energy lies outside the mask OR σ(s_k) → 0; (3) Mutual requirement — r_k approaches its maximum only when both spatial fidelity and semantic confidence are simultaneously high. No competing method produces this continuous score.
-
-**Stage 4 — Few-Shot Retrieval**
-PICES strategy (K=1): retrieve the training case whose BiomedCLIP embedding is most cosine-similar to the query. Using the same encoder for retrieval and concept scoring ensures embedding-space similarity corresponds to concept-feature similarity. K=1 is optimal: K=2 trades 1.31 pp mean BAcc for 40% reduction in standard deviation.
-
-**Stage 5 — Graduated Confidence Prompt Construction**
-Unreliable concepts (r_k < ρ/2) are hard-filtered. A minimum-concept guarantee ensures ≥3 concepts always reach the LLM (triggered in 29% of images). Surviving concepts receive graduated confidence tags; presence threshold τ_pres=0.2 (deliberately lower than the Stage 1 binarisation threshold τ_abs=0.5 to preserve borderline signals).
-
-**Stage 6 — LLM-Based Diagnostic Inference**
-MedLLaMA2-7B (LLaMA-2 fine-tuned on PMC-LLaMA), temperature τ=0, vocabulary logit mask restricting generation to {A, B}. Constrained decoding prevents intermediate reasoning from overriding prompt evidence — chain-of-thought is catastrophically harmful at 7B scale (−18.69% BAcc, sensitivity collapses to 37.3%).
 
 ## Results
 
