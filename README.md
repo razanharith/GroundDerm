@@ -21,37 +21,6 @@ x ──Stage 1──▶ s ──Stages 2–3──▶ s* ──Stages 4–6─�
 where **s** ∈ [0,1]^N is the raw concept score vector and **s\*** is the spatially verified subset passed to the LLM. The lesion mask M is generated in parallel and feeds exclusively into Stage 3, sharing no parameters with the diagnostic pipeline.
 
 ```
-Input dermoscopic image
-    │
-    ├──► [Lesion segmentation] DeepLabV3+ (ResNet-101) → mask M
-    │
-    ▼
-Stage 1: VLM-Based Concept Extraction
-    BiomedCLIP (frozen) × 8 concepts × T=3 templates
-    → softmax concept scores s_k ∈ [0,1]            (~0.15s)
-    │
-Stage 2: Text-Conditioned Spatial Grounding
-    GradCAM on frozen BiomedCLIP, L=4 transformer layers
-    → per-concept heatmaps H_k ∈ [0,1]^{H×W}        (~1.20s)
-    │
-Stage 3: Spatial Reliability Verification          ← core contribution
-    r_k = coverage(H_k, M) × σ(s_k) ∈ [0,1]
-    → 3 tiers: Reliable (r_k ≥ ρ) / Uncertain / Unreliable (<ρ/2)
-    → Unreliable concepts filtered from prompt        (<0.01s)
-    │
-Stage 4: Few-Shot Retrieval (PICES, K=1)
-    BiomedCLIP embedding similarity → retrieve K training cases (~0.05s)
-    │
-Stage 5: Graduated Confidence Prompt Construction
-    [PRESENT|HIGH CONF] / [ABSENT|HIGH CONF]    for r_k ≥ ρ
-    [PRESENT|MODERATE CONF] / [ABSENT|MODERATE CONF]  for ρ/2 ≤ r_k < ρ
-    │
-Stage 6: LLM-Based Diagnostic Inference
-    MedLLaMA2-7B (frozen), τ=0, single-token {A=Nevus, B=Melanoma}
-    → ŷ                                              (~0.70s)
-    │
-    Total: ~2.1s per image
-```
 
 ## Clinical Concept Vocabulary
 
