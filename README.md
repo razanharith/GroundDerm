@@ -63,30 +63,31 @@ MedLLaMA2-7B (LLaMA-2 fine-tuned on PMC-LLaMA), temperature τ=0, vocabulary log
 
 ## Results
 
-### Main Results on PH2 (5-Fold CV, ρ=0.35, K=1)
+### Main Results on PH2 (5-Fold CV, rho=0.35, K=1)
 
-| | BAcc (%) | Sensitivity (%) | Specificity (%) | F1 (%) |
-|---|----------|----------------|----------------|--------|
+| Fold | BAcc (%) | Sensitivity (%) | Specificity (%) | F1 (%) |
+|------|----------|-----------------|-----------------|--------|
 | Fold 0 | 62.54 | 44.44 | 80.65 | 42.11 |
 | Fold 1 | 97.06 | 100.00 | 94.12 | 85.71 |
 | Fold 2 | 98.21 | 100.00 | 96.43 | 96.00 |
 | Fold 3 | 80.39 | 66.67 | 94.12 | 66.67 |
 | Fold 4 | 98.48 | 100.00 | 96.97 | 93.33 |
-| **Mean ± Std** | **87.34 ± 14.14** | **82.22 ± 22.88** | **92.46 ± 6.02** | **76.76 ± 20.14** |
+| **Mean** | **87.34** | **82.22** | **92.46** | **76.76** |
+| **Std** | **14.14** | **22.88** | **6.02** | **20.14** |
 
 GroundDerm surpasses the prior training-free SOTA (Patrício et al. Two-Step, 85.05%) by +2.29 pp while additionally providing per-concept heatmaps and reliability scores absent from that method.
 
 ### Per-Concept Analysis
 
-| Concept | F1 (%) | Mel Rate | Nev Rate | Δs | Reliable | Uncertain | Unreliable |
-|---------|--------|----------|----------|----|----------|-----------|------------|
+| Concept | F1 (%) | Mel Rate | Nev Rate | Score Gap | Reliable | Uncertain | Unreliable |
+|---------|--------|----------|----------|-----------|----------|-----------|------------|
 | Regression Structures | 52.29 | 0.700 | 0.338 | +0.182 | 89 | 67 | 44 |
 | Blue-Whitish Veil | 47.88 | **0.800** | 0.150 | **+0.501** | 55 | 32 | 113 |
 | Irreg. Dots & Glob. | 40.93 | 0.275 | 0.062 | +0.088 | 77 | 57 | 66 |
 | Irregular Streaks | 33.75 | 0.125 | 0.019 | +0.034 | 46 | 38 | 116 |
-| Regular Streaks | 17.11 | 0.625 | 0.588 | −0.011 | 41 | 25 | 134 |
-| Reg. Dots & Glob. | 1.67 | 0.000 | 0.000 | −0.022 | 65 | 33 | 102 |
-| Typical Pigment Network | 0.00 | 0.000 | 0.000 | −0.026 | 134 | 46 | 20 |
+| Regular Streaks | 17.11 | 0.625 | 0.588 | -0.011 | 41 | 25 | 134 |
+| Reg. Dots & Glob. | 1.67 | 0.000 | 0.000 | -0.022 | 65 | 33 | 102 |
+| Typical Pigment Network | 0.00 | 0.000 | 0.000 | -0.026 | 134 | 46 | 20 |
 | Atypical Pigment Network | 0.00 | 0.000 | 0.000 | +0.005 | 142 | 42 | 16 |
 | **Average / Total** | **24.20** | | | | **649** | **340** | **611** |
 
@@ -96,35 +97,35 @@ GroundDerm surpasses the prior training-free SOTA (Patrício et al. Two-Step, 85
 
 ### Component Contribution (PH2, 5-fold CV)
 
-| Configuration | BAcc (%) | Std | Δ |
-|---------------|----------|-----|---|
-| **Full GroundDerm** | **87.34** | 14.14 | — |
+| Configuration | BAcc (%) | Std (%) | Change |
+|---------------|----------|---------|--------|
+| **Full GroundDerm** | **87.34** | **14.14** | — |
 | w/o spatial grounding | 87.99 | 12.19 | +0.65 |
-| w/o reliability filtering | 85.54 | 13.87 | −1.80 |
-| w/o graduated confidence | 80.69 | 8.26 | −6.65 |
-| w/o few-shot retrieval (K=0) | 80.36 | 8.36 | −6.98 |
+| w/o reliability filtering | 85.54 | 13.87 | -1.80 |
+| w/o graduated confidence | 80.69 | 8.26 | -6.65 |
+| w/o few-shot retrieval (K=0) | 80.36 | 8.36 | -6.98 |
 
 Graduated confidence prompting (+6.65%) and few-shot retrieval (+6.98%) are the dominant performance levers. Spatial grounding's primary value is the clinical infrastructure it provides (per-concept heatmaps, auditable reasoning) rather than direct accuracy gain on this fixed test set.
 
 ### Prompting Strategy Comparison (PH2, 5-fold CV)
 
-| Strategy | BAcc (%) | Sensitivity (%) | Specificity (%) | Δ |
-|----------|----------|----------------|----------------|---|
-| **Direct (graduated conf.)** | **87.34 ± 14.14** | 82.22 | 92.46 | — |
-| Binary (present/absent) | 80.69 ± 8.26 | 77.78 | 83.61 | −6.65 |
-| Chain-of-Thought | 68.65 ± 9.48 | 37.30 | 100.00 | −18.69 |
-| CoT Self-Consistency | 66.74 ± 8.86 | 34.13 | 99.35 | −20.60 |
+| Strategy | BAcc (%) | Sensitivity (%) | Specificity (%) | Change |
+|----------|----------|-----------------|-----------------|--------|
+| **Direct (graduated conf.)** | **87.34** | **82.22** | **92.46** | — |
+| Binary (present/absent) | 80.69 | 77.78 | 83.61 | -6.65 |
+| Chain-of-Thought | 68.65 | 37.30 | 100.00 | -18.69 |
+| CoT Self-Consistency | 66.74 | 34.13 | 99.35 | -20.60 |
 
 Chain-of-thought prompting is **catastrophically harmful** at 7B medical-LLM scale: sensitivity collapses to 37.3% while specificity reaches 100%, revealing a systematic over-conservative corpus-prior bias. Constrained single-token decoding is the correct strategy for sub-10B medical LLMs.
 
-### Hyperparameter Grid: ρ × K
+### Hyperparameter Grid: Threshold (rho) x Few-Shot (K)
 
-| ρ | K=0 | K=1 | K=2 |
-|---|-----|-----|-----|
-| 0.20 | — | 87.96 ± 14.21 | 84.28 ± 8.31 |
-| 0.25 | — | 87.04 ± 14.30 | — |
-| 0.30 | — | 87.63 ± 14.01 | 84.92 ± 10.50 |
-| 0.35 | 80.36 ± 8.36 | **87.34 ± 14.14** | **86.03 ± 8.43** |
+| Threshold (rho) | K=0 | K=1 | K=2 |
+|-----------------|-----|-----|-----|
+| 0.20 | — | 87.96 | 84.28 |
+| 0.25 | — | 87.04 | — |
+| 0.30 | — | 87.63 | 84.92 |
+| 0.35 | 80.36 | **87.34** | **86.03** |
 
 BAcc varies <1 pp across all ρ values at K=1. K dominates performance: K=0→K=1 gives +6.98 pp regardless of ρ. K=2 at ρ=0.35 is recommended for deployment (best accuracy–variance trade-off: 86.03% ± 8.43%).
 
@@ -132,13 +133,13 @@ BAcc varies <1 pp across all ρ values at K=1. K dominates performance: K=0→K=
 
 | Stage | Time (s) | Operation |
 |-------|----------|-----------|
-| 1: VLM scoring | ~0.15 | 8 forward passes, BiomedCLIP |
-| 2: GradCAM maps | ~1.20 | 8 backward passes (4 layers each) |
+| 1: VLM scoring | 0.15 | 8 forward passes, BiomedCLIP |
+| 2: GradCAM maps | 1.20 | 8 backward passes (4 layers each) |
 | 3: Reliability | <0.01 | Matrix multiply, CPU |
-| 4: Retrieval | ~0.05 | Cosine sim., pre-cached embeddings |
+| 4: Retrieval | 0.05 | Cosine sim., pre-cached embeddings |
 | 5: Prompt build | <0.01 | String formatting, CPU |
-| 6: LLM decode | ~0.70 | 1-token decode, MedLLaMA2-7B |
-| **Total** | **~2.11** | RTX 3090 (24 GB) |
+| 6: LLM decode | 0.70 | 1-token decode, MedLLaMA2-7B |
+| **Total** | **2.11** | **RTX 3090 (24 GB)** |
 
 Full 5-fold CV over 200 images completes in under 15 minutes.
 
@@ -160,7 +161,7 @@ pip install torch torchvision transformers open-clip-torch opencv-python numpy s
 PH2: 200 dermoscopic images with binary diagnostic labels (80 melanomas, 120 nevi), ground-truth segmentation masks, and expert annotations for 8 dermoscopic concepts.
 
 | Dataset | Total | Train (per fold) | Test (per fold) | Folds |
-|---------|-------|-----------------|----------------|-------|
+|---------|-------|-----------------|-----------------|-------|
 | PH2 | 200 | 160 | 40 | 5 (stratified) |
 
 Ground-truth masks are used in ablation experiments to isolate mask quality; predicted DeepLabV3+ masks are used in fully automated inference. Sensitivity to mask quality is analysed in the paper.
